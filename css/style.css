@@ -953,7 +953,7 @@ i.fa.fa-gift{
 }
 /*-- /terms --*/
 /*-- agent --*/
-.agent-left input[type="text"] {
+.agent-left input[type="text"], input[type="number"] {
     width: 80%;
     color: #9E9E9E;
     outline: none;

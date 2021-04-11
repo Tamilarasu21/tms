@@ -7,21 +7,26 @@ if (isset($_POST['submit2'])) {
 	$useremail = $_SESSION['login'];
 	$fromdate = $_POST['fromdate'];
 	$todate = $_POST['todate'];
-	$count=$_POST["count"];
+	$count = $_POST["count"];
+	$price = $_POST["price"];
+	$payment_status="Not Paid";
+	$date = date('Y-m-d H:i:s');
 	$status = 0;
-	$sql = "INSERT INTO tblbooking(PackageId,UserEmail,FromDate,ToDate,count,status) VALUES(:pid,:useremail,:fromdate,:todate,:count,:status)";
+	$sql = "INSERT INTO tblbooking(PackageId,UserEmail,FromDate,ToDate,count,price,payment_status,status) VALUES(:pid,:useremail,:fromdate,:todate,:count,:price,:payment_status,:status)";
 	$query = $dbh->prepare($sql);
 	$query->bindParam(':pid', $pid, PDO::PARAM_STR);
 	$query->bindParam(':useremail', $useremail, PDO::PARAM_STR);
 	$query->bindParam(':fromdate', $fromdate, PDO::PARAM_STR);
 	$query->bindParam(':todate', $todate, PDO::PARAM_STR);
 	$query->bindParam(':count', $count, PDO::PARAM_STR);
+	$query->bindParam(':price', $price, PDO::PARAM_STR);
+	$query->bindParam(':payment_status', $payment_status, PDO::PARAM_STR);
 	$query->bindParam(':status', $status, PDO::PARAM_STR);
 	$query->execute();
 	$lastInsertId = $dbh->lastInsertId();
 	if ($lastInsertId) {
 		$msg = "Booked Successfully";
-		header("location:payment.php");
+		header("location:payment.php?datetime=$date");
 	} else {
 		$error = "Something went wrong. Please try again";
 	}
@@ -42,6 +47,12 @@ if (isset($_POST['submit2'])) {
 	<link href='//fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
 	<link href="css/font-awesome.css" rel="stylesheet">
 	<!-- Custom Theme files -->
+	<script type="text/javascrip">
+		$('#quantity').on('keyup', function() {
+			var tot = $('#price').val() * this.value;
+			$('#total').val(tot);
+		});
+	</script>
 	<script src="js/jquery-1.12.0.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<!--animate-->
@@ -124,14 +135,18 @@ if (isset($_POST['submit2'])) {
 									</div>
 								</div>
 								<div class="col-md-3">
-								<label for="count">Count</label>
-								<input type="number" id="count" name="count" required class="form-control">
+									<label for="price">Price ₹</label>
+									<input type="text" id="price" value="<?php echo htmlentities($result->PackagePrice); ?>" class="form-control" readonly />
+								</div>
+								<div class="col-md-3">
+									<label for="quantity">Count</label>
+									<input type="text" inputmode="numeric" id="quantity" name="count" min="1" value="1" class="form-control" required />
+								</div>
+								<div class="col-md-3">
+									<label for="total">Total ₹</label>
+									<input type="text" id="total" name="price" readonly value="<?php echo htmlentities($result->PackagePrice); ?>" class="form-control" />
 								</div>
 								<div class="clearfix"></div>
-								<div class="grand">
-									<p>Grand Total</p>
-									<h3>₹.<?php echo htmlentities($result->PackagePrice); ?></h3>
-								</div>
 							</div>
 							<h3>Package Details</h3>
 							<p style="padding-top: 1%"><?php echo htmlentities($result->PackageDetails); ?> </p>
@@ -161,6 +176,12 @@ if (isset($_POST['submit2'])) {
 		</div>
 	</div>
 	<!--- /selectroom ---->
+	<script>
+		$('#quantity').on('keyup', function() {
+			var tot = $('#price').val() * this.value;
+			$('#total').val(tot);
+		});
+	</script>
 	<<!--- /footer-top ---->
 		<?php include('includes/footer.php'); ?>
 		<!-- signup -->

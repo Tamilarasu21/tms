@@ -5,6 +5,20 @@ include('includes/config.php');
 if (strlen($_SESSION['login']) == 0) {
     header('location:index.php');
 }
+if (isset($_POST["pay"]) && isset($_GET["datetime"])) {
+    $payment_status = $_POST["payment_status"];
+    $time=strtotime($_GET["datetime"]);
+    $datetime=date('Y-m-d H:i:s',$time);
+    $sql = "update tblbooking set payment_status='".$payment_status."' where UserEmail='".$_SESSION["login"]."' and RegDate='".$datetime."'";
+    $query = $dbh->prepare($sql);
+    $query->bindParam(':payment_status', $payment_status, PDO::PARAM_STR);
+    $query->execute();
+    if ($query) {
+        header("location:thankyou.php");
+    } else {
+        $error = "Something went wrong. Please try again";
+    }
+}
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -94,32 +108,33 @@ if (strlen($_SESSION['login']) == 0) {
                                 </div>
                             </div>
                             <div class="panel-body">
-                                <form role="form">
-                                    <div class="row">
-                                        <div class="col-xs-12">
-                                            <div class="form-group"> <label>CARD NUMBER</label>
-                                                <div class="input-group"> <input type="tel" class="form-control" placeholder="Valid Card Number" /> <span class="input-group-addon"><span class="fa fa-credit-card"></span></span> </div>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="form-group"> <label>CARD NUMBER</label>
+                                            <div class="input-group"> <input type="tel" class="form-control" placeholder="Valid Card Number" /> <span class="input-group-addon"><span class="fa fa-credit-card"></span></span> </div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-xs-7 col-md-7">
-                                            <div class="form-group"> <label><span class="hidden-xs">EXPIRATION</span><span class="visible-xs-inline">EXP</span> DATE</label> <input type="tel" class="form-control" placeholder="MM / YY" /> </div>
-                                        </div>
-                                        <div class="col-xs-5 col-md-5 pull-right">
-                                            <div class="form-group"> <label>CVV CODE</label> <input type="tel" class="form-control" placeholder="CVV" /> </div>
-                                        </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7 col-md-7">
+                                        <div class="form-group"> <label><span class="hidden-xs">EXPIRATION</span><span class="visible-xs-inline">EXP</span> DATE</label> <input type="tel" class="form-control" placeholder="MM / YY" /> </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-xs-12">
-                                            <div class="form-group"> <label>CARD OWNER</label> <input type="text" class="form-control" placeholder="Card Owner Name" /> </div>
-                                        </div>
+                                    <div class="col-xs-5 col-md-5 pull-right">
+                                        <div class="form-group"> <label>CVV CODE</label> <input type="tel" class="form-control" placeholder="CVV" /> </div>
                                     </div>
-                                </form>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="form-group"> <label>CARD OWNER</label> <input type="text" class="form-control" placeholder="Card Owner Name" /> </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="panel-footer">
                                 <div class="row">
-                                    <div class="col-xs-12"> <button class="btn btn-success btn-lg btn-block">Confirm Payment</button> </div>
+                                    <form method="post" action="">
+                                        <input type="hidden" name="payment_status" value="Paid">
+                                        <div class="col-xs-12"><input type="submit" value="Confirm Payment" class="btn btn-success btn-lg btn-block" name="pay"></div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
